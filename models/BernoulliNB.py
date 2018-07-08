@@ -12,6 +12,7 @@ rcParams['font.size'] = '13'
 mnist = load_digits()
 
 X, y = mnist.data, mnist.target
+X /= 15
 
 classifier = BernoulliNB()
 

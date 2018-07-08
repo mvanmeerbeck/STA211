@@ -39,7 +39,7 @@ def create_model():
 
     model.add(Dense(10, activation='softmax'))
 
-    sgd = SGD(lr=0.1, momentum=0, decay=0, nesterov=False)
+    sgd = SGD(lr=0.02, momentum=0.01, decay=0, nesterov=False)
     model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
     return model
@@ -57,7 +57,7 @@ scores = cross_validate(classifier, X, y, return_train_score=True)
 print("Train Accuracy: %0.2f (+/- %0.2f)" % (scores['train_score'].mean(), scores['train_score'].std() * 2))
 print("Test Accuracy: %0.2f (+/- %0.2f)" % (scores['test_score'].mean(), scores['test_score'].std() * 2))
 print("Time: %0.6f (+/- %0.6f)" % (scores['score_time'].mean(), scores['score_time'].std() * 2))
-
+exit()
 def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
                         n_jobs=1, train_sizes=np.linspace(.1, 1.0, 5)):
     """
