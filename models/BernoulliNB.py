@@ -1,27 +1,25 @@
-from sklearn.datasets import fetch_mldata
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LinearRegression, Ridge, LogisticRegression
-from sklearn.model_selection import cross_val_score, ShuffleSplit
-from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.naive_bayes import GaussianNB
-from sklearn.svm import SVC
 from sklearn.datasets import load_digits
+from sklearn.naive_bayes import BernoulliNB
+from sklearn.model_selection import cross_validate
 from sklearn.model_selection import learning_curve
-from sklearn.model_selection import ShuffleSplit
+from matplotlib import rcParams
 
-mnist = fetch_mldata("MNIST original")
+rcParams['font.family'] = 'EB Garamond'
+rcParams['font.size'] = '13'
 
-# rescale the data, use the traditional train/test split
+mnist = load_digits()
+
 X, y = mnist.data, mnist.target
-X = X.astype('float32')
-X /= 255
 
-clf_rf = LogisticRegression()
+classifier = BernoulliNB()
 
-cv = ShuffleSplit(n_splits=1, test_size=1/7, random_state=0)
+scores = cross_validate(classifier, X, y, return_train_score=True)
 
+print("Train Accuracy: %0.2f (+/- %0.2f)" % (scores['train_score'].mean(), scores['train_score'].std() * 2))
+print("Test Accuracy: %0.2f (+/- %0.2f)" % (scores['test_score'].mean(), scores['test_score'].std() * 2))
+print("Time: %0.6f (+/- %0.6f)" % (scores['score_time'].mean(), scores['score_time'].std() * 2))
 
 def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
                         n_jobs=1, train_sizes=np.linspace(.1, 1.0, 5)):
@@ -69,7 +67,7 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
     plt.title(title)
     if ylim is not None:
         plt.ylim(*ylim)
-    plt.xlabel("Training examples")
+    plt.xlabel("Images d'apprentissage")
     plt.ylabel("Score")
     train_sizes, train_scores, test_scores = learning_curve(
         estimator, X, y, cv=cv, n_jobs=n_jobs, train_sizes=train_sizes)
@@ -85,16 +83,13 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
     plt.fill_between(train_sizes, test_scores_mean - test_scores_std,
                      test_scores_mean + test_scores_std, alpha=0.1, color="g")
     plt.plot(train_sizes, train_scores_mean, 'o-', color="r",
-             label="Training score")
+             label="Score apprentissage")
     plt.plot(train_sizes, test_scores_mean, 'o-', color="g",
-             label="Cross-validation score")
+             label="Score validation croisee")
 
     plt.legend(loc="best")
     return plt
 
+plot_learning_curve(classifier, 'Naive Bayes - Bernoulli : courbe d\'apprentissage', X, y, ylim=(0.7, 1.01), n_jobs=1)
 
-plot_learning_curve(clf_rf, 'test', X, y, ylim=(0.7, 1.01), cv=cv)
 plt.show()
-# scores = cross_val_score(clf_rf, X, y, cv=cv)
-# print(scores)
-# print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
